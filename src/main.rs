@@ -1,69 +1,50 @@
-use bevy::{prelude::*, scene::InstanceId};
+use bevy::prelude::*;
 
+mod debug;
+
+use debug::DebugPlugin;
 
 fn main() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
-        .init_resource::<SceneInstance>()
         .add_startup_system(setup)
-        .add_system(scene_update)
-        .add_system(move_scene_entities)
+        .add_plugin(DebugPlugin)
         .run();
 }
-
-// Resource to hold the scene `instance_id` until it is loaded
-#[derive(Default)]
-struct SceneInstance(Option<InstanceId>);
-
-// Component that will be used to tag entities in the scene
-#[derive(Component)]
-struct EntityInMyScene;
 
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut scene_spawner: ResMut<SceneSpawner>,
-    mut scene_instance: ResMut<SceneInstance>,
 ) {
-    commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(10.0, 10.0, 10.0)
-            .looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::Y),
+    let camera_model = Mat4::from_scale_rotation_translation(
+        Vec3::splat(1.0),
+        Quat::from_euler(EulerRot::XYZ, 31.8346062, 29.6680508, -2.00988575e-06),
+        Vec3::new(405.748962, 278.687042, 686.857544),
+    );
+
+    let bundle = commands.spawn_bundle(PerspectiveCameraBundle {
+        transform: Transform::from_matrix(camera_model)
+            .looking_at(Vec3::new(409.8714, 256.4061, 721.0326), Vec3::Y),
         ..Default::default()
     });
 
+    let mut glft_model = asset_server.load("models/portal.gltf#Scene0");
+
     // Spawn a second scene, and keep its `instance_id`
-    let instance_id =
-        scene_spawner.spawn(asset_server.load("models/portal.gltf#Scene0"));
-    scene_instance.0 = Some(instance_id);
-}
+    let portal_model = Mat4::from_scale_rotation_translation(
+        Vec3::splat(5.0),
+        Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, 0.0),
+        Vec3::new(409.8714, 256.4061, 721.0326),
+    );
 
-// This system will wait for the scene to be ready, and then tag entities from
-// the scene with `EntityInMyScene`. All entities from the second scene will be
-// tagged
-fn scene_update(
-    mut commands: Commands,
-    scene_spawner: Res<SceneSpawner>,
-    scene_instance: Res<SceneInstance>,
-    mut done: Local<bool>,
-) {
-    if !*done {
-        if let Some(instance_id) = scene_instance.0 {
-            if let Some(entity_iter) = scene_spawner.iter_instance_entities(instance_id) {
-                entity_iter.for_each(|entity| {
-                    commands.entity(entity).insert(EntityInMyScene);
-                });
-                *done = true;
-            }
-        }
-    }
-}
-
-// This system will move all entities with component `EntityInMyScene`, so all
-// entities from the second scene
-fn move_scene_entities(
-    time: Res<Time>,
-    mut scene_entities: Query<&mut Transform, With<EntityInMyScene>>,
-) {
-
+    commands
+        .spawn_bundle((
+            Transform::from_matrix(portal_model),
+            GlobalTransform::identity(),
+        ))
+        .with_children(|parent| {
+            parent.spawn_scene(glft_model);
+        });
 }
