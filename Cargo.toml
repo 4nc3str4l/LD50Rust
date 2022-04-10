@@ -1,5 +1,5 @@
 [package]
-name = "LD50"
+name = "ld_50"
 version = "0.1.0"
 edition = "2021"
 
