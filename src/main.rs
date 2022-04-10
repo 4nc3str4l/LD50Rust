@@ -33,8 +33,8 @@ fn setup(
     // Spawn camera
     let camera_model = Mat4::from_scale_rotation_translation(
         Vec3::splat(1.0),
-        Quat::from_euler(EulerRot::XYZ, -2.564, -0.101, -3.076),
-        Vec3::new(386.32, 300.2, 660.5),
+        Quat::from_euler(EulerRot::XYZ, -2.5, -0.5, -3.0),
+        Vec3::new(390.32, 285.2, 687.5),
     );
 
     commands
@@ -102,4 +102,61 @@ fn setup(
         transform: Transform::from_matrix(light_model),
         ..Default::default()
     });
+
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(421.610901, 256.906128, 694.026062),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(445.025879, 256.906128, 726.467102),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(442.042084, 256.906128, 700.193604),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(457.402618, 256.906128, 719.416687),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(433.07251, 256.906128, 738.293701),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(408.839081, 256.906128, 748.451233),
+    );
+    spawn_tree(
+        &mut commands,
+        &asset_server,
+        Vec3::new(397.201599, 256.906128, 726.434509),
+    );
+}
+
+fn spawn_tree(commands: &mut Commands, asset_server: &Res<AssetServer>, position: Vec3) {
+    let glft_model = asset_server.load(MODEL_TREE);
+
+    // Spawn a second scene, and keep its `instance_id`
+    let portal_model = Mat4::from_scale_rotation_translation(
+        Vec3::splat(5.0),
+        Quat::from_euler(EulerRot::XYZ, 0.0, 2.4, 0.0),
+        position,
+    );
+
+    commands
+        .spawn_bundle((
+            Transform::from_matrix(portal_model),
+            GlobalTransform::identity(),
+        ))
+        .with_children(|parent| {
+            parent.spawn_scene(glft_model);
+        })
+        .insert(Name::new("Tree"));
 }

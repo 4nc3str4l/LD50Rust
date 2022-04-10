@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{WorldInspectorPlugin};
+use bevy_inspector_egui::WorldInspectorPlugin;
 
 pub struct DebugPlugin;
 
