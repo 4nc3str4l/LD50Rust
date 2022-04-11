@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
 
-use crate::entities::*;
+use crate::components::*;
 
 pub struct DebugPlugin;
 

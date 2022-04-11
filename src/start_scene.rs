@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{constants::*, entities::*, tools::*, GameState};
+use crate::{components::*, constants::*, spawners::*, GameState};
 
 pub struct StartScenePlugin;
 impl Plugin for StartScenePlugin {
@@ -134,6 +134,10 @@ pub fn setup_start_scene(
     );
 }
 
-pub fn update_start_scene(mut trees_queries: Query<(&Tree, &mut Transform)>) {}
+pub fn update_start_scene(mut trees: Query<(&Tree, &mut Transform)>, time: Res<Time>) {
+    // for (tree, mut transform) in trees.iter_mut() {
+    //     transform.translation.x += 1.0 * time.delta_seconds();
+    // }
+}
 
 pub fn dispose_start_scene() {}

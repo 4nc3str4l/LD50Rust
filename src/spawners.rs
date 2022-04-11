@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
+use crate::components::*;
 use crate::constants::*;
-use crate::entities::*;
 
 pub fn spawn_tree(commands: &mut Commands, asset_server: &Res<AssetServer>, position: Vec3) {
     let glft_model = asset_server.load(MODEL_TREE);
