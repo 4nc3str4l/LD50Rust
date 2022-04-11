@@ -132,6 +132,8 @@ pub fn setup_start_scene(
         &asset_server,
         Vec3::new(397.201599, 256.906128, 726.434509),
     );
+
+    spawn_soul(&mut commands, &asset_server, portal_position);
 }
 
 pub fn update_start_scene(mut trees: Query<(&Tree, &mut Transform)>, time: Res<Time>) {

@@ -22,6 +22,28 @@ pub fn spawn_tree(commands: &mut Commands, asset_server: &Res<AssetServer>, posi
             parent.spawn_scene(glft_model);
         })
         .insert(Name::new("Tree"))
+        .insert(Soul {});
+}
+
+pub fn spawn_soul(commands: &mut Commands, asset_server: &Res<AssetServer>, position: Vec3) {
+    let glft_model = asset_server.load(MODEL_SOUL);
+
+    // Spawn a second scene, and keep its `instance_id`
+    let portal_model = Mat4::from_scale_rotation_translation(
+        Vec3::splat(2.0),
+        Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, 0.0),
+        position,
+    );
+
+    commands
+        .spawn_bundle((
+            Transform::from_matrix(portal_model),
+            GlobalTransform::identity(),
+        ))
+        .with_children(|parent| {
+            parent.spawn_scene(glft_model);
+        })
+        .insert(Name::new("Soul"))
         .insert(Tree { size: 1.0 });
 }
 

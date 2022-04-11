@@ -7,6 +7,9 @@ pub struct Tree {
 }
 
 #[derive(Component, Inspectable)]
+pub struct Soul {}
+
+#[derive(Component, Inspectable)]
 pub struct Orbit {
     pub x_spread: f32,
     pub z_spread: f32,
