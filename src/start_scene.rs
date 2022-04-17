@@ -7,7 +7,9 @@ impl Plugin for StartScenePlugin {
     fn build(&self, app: &mut App) {
         app.add_state(GameState::StartScene)
             .add_system_set(
-                SystemSet::on_enter(GameState::StartScene).with_system(setup_start_scene),
+                SystemSet::on_enter(GameState::StartScene)
+                    .with_system(setup_start_scene)
+                    .with_system(setup_ui),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::StartScene).with_system(update_start_scene),
@@ -29,7 +31,7 @@ pub fn setup_start_scene(
 
     // Spawn a second scene, and keep its `instance_id`
     let portal_model = Mat4::from_scale_rotation_translation(
-        Vec3::splat(5.0),
+        Vec3::splat(3.0),
         Quat::from_euler(EulerRot::XYZ, 0.0, 2.4, 0.0),
         portal_position,
     );
@@ -133,7 +135,107 @@ pub fn setup_start_scene(
         Vec3::new(397.201599, 256.906128, 726.434509),
     );
 
-    spawn_soul(&mut commands, &asset_server, portal_position);
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        10.0,
+        10.0,
+        0.0,
+        2.0,
+        false,
+        false,
+    );
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        25.0,
+        25.0,
+        0.0,
+        1.5,
+        true,
+        false,
+    );
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        45.0,
+        45.0,
+        2.0,
+        0.5,
+        false,
+        false,
+    );
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        5.0,
+        4.0,
+        0.0,
+        2.0,
+        false,
+        true,
+    );
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        8.0,
+        8.0,
+        0.0,
+        0.3,
+        false,
+        true,
+    );
+    spawn_rotating_soul(
+        &mut commands,
+        &asset_server,
+        portal_position,
+        6.0,
+        6.0,
+        0.0,
+        1.0,
+        true,
+        true,
+    );
+}
+
+fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // ui camera
+    commands.spawn_bundle(UiCameraBundle::default());
+
+    // root node
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                justify_content: JustifyContent::SpaceBetween,
+                ..Default::default()
+            },
+            color: Color::NONE.into(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent.spawn_bundle(TextBundle {
+                style: Style {
+                    margin: Rect::all(Val::Px(500.0)),
+                    ..Default::default()
+                },
+                text: Text::with_section(
+                    "Soul Dilemma",
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                        font_size: 60.0,
+                        color: Color::WHITE,
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
+            });
+        });
 }
 
 pub fn update_start_scene(mut trees: Query<(&Tree, &mut Transform)>, time: Res<Time>) {
