@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 use crate::{components::*, constants::*, spawners::*, GameState};
 
+const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 pub struct StartScenePlugin;
 impl Plugin for StartScenePlugin {
     fn build(&self, app: &mut App) {
@@ -12,7 +15,9 @@ impl Plugin for StartScenePlugin {
                     .with_system(setup_ui),
             )
             .add_system_set(
-                SystemSet::on_update(GameState::StartScene).with_system(update_start_scene),
+                SystemSet::on_update(GameState::StartScene)
+                    .with_system(update_start_scene)
+                    .with_system(button_system),
             );
     }
 }
@@ -212,16 +217,23 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                justify_content: JustifyContent::SpaceBetween,
+                position_type: PositionType::Absolute,
+                justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::ColumnReverse,
                 ..Default::default()
             },
             color: Color::NONE.into(),
+
             ..Default::default()
         })
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
                 style: Style {
-                    margin: Rect::all(Val::Px(500.0)),
+                    align_self: AlignSelf::Center,
+                    margin: Rect {
+                        top: Val::Px(100.0),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
                 text: Text::with_section(
@@ -231,10 +243,44 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         font_size: 60.0,
                         color: Color::WHITE,
                     },
-                    Default::default(),
+                    TextAlignment {
+                        horizontal: HorizontalAlign::Center,
+                        vertical: VerticalAlign::Center,
+                        ..Default::default()
+                    },
                 ),
                 ..Default::default()
             });
+
+            parent
+                .spawn_bundle(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                        // center button
+                        margin: Rect::all(Val::Auto),
+                        // horizontally center child text
+                        justify_content: JustifyContent::Center,
+                        // vertically center child text
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    color: NORMAL_BUTTON.into(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn_bundle(TextBundle {
+                        text: Text::with_section(
+                            "Start",
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 40.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                            Default::default(),
+                        ),
+                        ..Default::default()
+                    });
+                });
         });
 }
 
@@ -242,6 +288,30 @@ pub fn update_start_scene(mut trees: Query<(&Tree, &mut Transform)>, time: Res<T
     // for (tree, mut transform) in trees.iter_mut() {
     //     transform.translation.x += 1.0 * time.delta_seconds();
     // }
+}
+
+fn button_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut UiColor, &Children),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut text_query: Query<&mut Text>,
+) {
+    for (interaction, mut color, children) in interaction_query.iter_mut() {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Clicked => {
+                *color = PRESSED_BUTTON.into();
+                println!("Hello World!");
+            }
+            Interaction::Hovered => {
+                *color = HOVERED_BUTTON.into();
+            }
+            Interaction::None => {
+                *color = NORMAL_BUTTON.into();
+            }
+        }
+    }
 }
 
 pub fn dispose_start_scene() {}
